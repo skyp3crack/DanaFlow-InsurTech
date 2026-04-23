@@ -14,4 +14,4 @@ Currently developing an Insurtech mobile MVP that replaces legacy static forms w
 * Built with React Native and Firebase.
 * Features biometric security, real-time cloud data syncing, and an Agentic AI workflow to process First Notice of Loss (FNOL) claims.
 
-📫 **Let's connect:** [Your LinkedIn URL]
+📫 **Let's connect:** https://www.linkedin.com/in/muhammad-k-b95018139/
