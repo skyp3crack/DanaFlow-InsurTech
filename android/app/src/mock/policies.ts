@@ -14,5 +14,13 @@ export const MOCK_POLICIES = [
         planName: 'MediShield Plus',
         status: 'Active',
         expiryDate: '05 Jan 2027',
-    }
+    },
+    {
+        id: 'POL-2026-089',
+        name: 'Health Ins',
+        type: 'Health Insurance',
+        planName: 'MediShield Plus',
+        status: 'Active',
+        expiryDate: '05 Jan 2027',
+    },
 ];
