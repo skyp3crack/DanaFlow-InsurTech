@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WalletScreen from './android/app/src/views/WalletScreen';
 import ClaimsScreen from './android/app/src/views/ClaimsScreen';
 import LoginScreen from './android/app/src/views/LoginScreen';
+import ChatAdvocate from './android/app/src/views/ChatAdvocate';
 
 const Stack = createNativeStackNavigator();
 
@@ -14,6 +15,7 @@ export default function App() {
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Wallet" component={WalletScreen} options={{ title: 'Digital Wallet' }} />
+        <Stack.Screen name="Chat" component={ChatAdvocate} options={{ title: 'Ask AI Advocate' }} />
         <Stack.Screen name="Claims" component={ClaimsScreen} options={{ title: 'Agentic Claims Advocate' }} />
       </Stack.Navigator>
     </NavigationContainer>

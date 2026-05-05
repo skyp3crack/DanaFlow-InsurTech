@@ -77,3 +77,8 @@ yarn-error.log
 
 # Firebase
 Android/app/google-services.json
+
+
+# env files
+*.env
+*.env.example

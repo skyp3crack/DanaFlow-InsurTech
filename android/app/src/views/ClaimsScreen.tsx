@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, ScrollView, Alert, Image, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, Alert, Image, ActivityIndicator } from "react-native";
 import { launchCamera } from 'react-native-image-picker';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
