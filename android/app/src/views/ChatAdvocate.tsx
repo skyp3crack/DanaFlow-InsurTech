@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { IMessage, GiftedChat } from "react-native-gifted-chat";
-import { StyleSheet, View } from "react-native";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { StyleSheet, View, Alert } from "react-native";
+import { GoogleGenerativeAI, SchemaType, FunctionDeclarationSchema } from "@google/generative-ai";
 import { GEMINI_API_KEY } from "@env";
 
 
@@ -32,23 +32,69 @@ export default function ChatAdvocate() {
         setIsTyping(true);
         const userText = newMessages[0].text;
         try {
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            //define tool for gemini to call on accident description
+            const updateStatusTool = {
+                functionDeclarations: [
+                    {
+                        name: "update_claim_status",
+                        description: "Triggers when the AI has collected the accident description from the user. It moves the claim status to 'AI Reviewing'.",
+                        parameters: {
+                            type: SchemaType.OBJECT,
+                            properties: {
+                                reason: {
+                                    type: SchemaType.STRING,
+                                    description: "A short summary of why the claim is moving forward.",
+                                },
+                            },
+                            required: ["reason"],
+                        } as FunctionDeclarationSchema,
+                    },
+                ],
+            };
+
+            //initilaize the model with the tool attached
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", tools: [updateStatusTool] });
+            //update the system prompt so it knows how to act
             const prompt = `You are a helpful, professional AI insurance claims advocate for an app called DanaFlow in Malaysia. 
                             The user just said:  "${userText}". 
-                            Respond kindly, keep it under 3 sentences, and ask one follow-up question to help process their claim.`;
+                            If the user has clearly described their accident, call the 'update_claim_status' function. 
+                            If they haven't given enough detail, just reply and ask for more info.`;
             const result = await model.generateContent(prompt);
-            const aiResponseText = result.response.text();
-            const aiMessage: IMessage = {
-                _id: Math.random().toString(),
-                text: aiResponseText,
-                createdAt: new Date(),
-                user: {
-                    _id: 2,
-                    name: 'DanaFlow AI',
-                    avatar: 'https://placeimg.com/140/140/tech',
-                },
-            };
-            setMessages(previousMessages => GiftedChat.append(previousMessages, [aiMessage]));
+
+            //Check : did the ai decide to use tool or just talk?
+            const functionCalls = result.response.functionCalls();
+            if (functionCalls && functionCalls.length > 0) {
+                // THE AI CHOSE ACTION! 
+                const call = functionCalls[0];
+                if (call.name === "update_claim_status") {
+
+                    // In a full production app, you would update Firebase here.
+                    // For now, we will trigger an alert to prove the Agent worked!
+                    Alert.alert(
+                        "⚡ Agentic Action Triggered!",
+                        `AI Summary: ${(call.args as any).reason}\n\nStatus changed to: AI Reviewing`
+                    );
+
+                    const aiMessage: IMessage = {
+                        _id: Math.random().toString(),
+                        text: "I have recorded the details and updated your claim status to 'AI Reviewing'. Our human adjusters will take it from here. Thank you!",
+                        createdAt: new Date(),
+                        user: { _id: 2, name: 'DanaFlow AI', avatar: 'https://placeimg.com/140/140/tech' },
+                    };
+                    setMessages(previousMessages => GiftedChat.append(previousMessages, [aiMessage]));
+                }
+            } else {
+                // THE AI CHOSE TO JUST CHAT
+                const aiResponseText = result.response.text();
+                const aiMessage: IMessage = {
+                    _id: Math.random().toString(),
+                    text: aiResponseText,
+                    createdAt: new Date(),
+                    user: { _id: 2, name: 'DanaFlow AI', avatar: 'https://placeimg.com/140/140/tech' },
+                };
+                setMessages(previousMessages => GiftedChat.append(previousMessages, [aiMessage]));
+            }
+
         } catch (error) {
             console.error("Error talking to Gemini:", error);
         } finally {
