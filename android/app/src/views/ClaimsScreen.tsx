@@ -3,6 +3,7 @@ import { View, Text, TextInput, Button, StyleSheet, Alert, Image, ActivityIndica
 import { launchCamera } from 'react-native-image-picker';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
+import { useNavigation } from "@react-navigation/native";
 
 export default function ClaimsScreen({ navigation }: any) {
 
@@ -68,6 +69,9 @@ export default function ClaimsScreen({ navigation }: any) {
             {/*show preview of photo if they take one */}
             {photoUri && <Image source={{ uri: photoUri }} style={styles.previewImage} />}
 
+            <View style={{ marginTop: 40 }}>
+                <Button title="Talk to AI Advoc" color="#62C00EE" onPress={() => navigation.navigate('Chat')}></Button>
+            </View>
             <View style={styles.submitContainer}>
                 {uploading ? (
                     <ActivityIndicator size="large" color="#0000ff" />
@@ -86,5 +90,6 @@ const styles = StyleSheet.create({
     input: { backgroundColor: 'white', padding: 15, borderRadius: 8, height: 100, textAlignVertical: 'top', marginBottom: 20 },
     buttonContainer: { marginBottom: 20 },
     previewImage: { width: '100%', height: 200, borderRadius: 8, marginBottom: 20, resizeMode: 'cover' },
-    submitContainer: { marginTop: 10 }
+    submitContainer: { marginTop: 10 },
+    title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' }
 });
