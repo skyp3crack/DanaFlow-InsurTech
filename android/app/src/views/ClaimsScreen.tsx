@@ -91,5 +91,5 @@ const styles = StyleSheet.create({
     buttonContainer: { marginBottom: 20 },
     previewImage: { width: '100%', height: 200, borderRadius: 8, marginBottom: 20, resizeMode: 'cover' },
     submitContainer: { marginTop: 10 },
-    title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' }
+    title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
 });
