@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { GiftedChat, IMessage } from 'react-native-gifted-chat';
+import firestore from '@react-native-firebase/firestore';
 import { GEMINI_API_KEY } from '@env';
 
 export default function ChatAdvocate() {
@@ -69,10 +70,26 @@ export default function ChatAdvocate() {
                 // THE AGENT TOOK ACTION!
                 const reason = responsePart.functionCall.args.reason;
 
-                Alert.alert(
-                    "⚡ Agentic Action Triggered!",
-                    `AI Summary: ${reason}\n\nStatus changed to: AI Reviewing`
-                );
+                try {
+                    //find the users most recently submitted claim
+                    const latestClaimSnapshot = await firestore().collection('claims').orderBy('createdAt', 'desc')
+                        .limit(1).get(); // fetch only one latest claim, ordered by created at descending
+
+                    if (!latestClaimSnapshot.empty) {
+                        await latestClaimSnapshot.docs[0].ref.update({
+                            status: 'AI Reviewing',
+                            aiSummary: reason,
+                            updatedAt: firestore.FieldValue.serverTimestamp(),
+                        });
+
+                    }
+                    Alert.alert(
+                        "⚡ Database Updated By AI",
+                        `AI Summary: ${reason}\n\nFirestore status successfully changed to 'AI Reviewing'.`
+                    );
+                } catch (dbError) {
+                    console.error("Failed to update Firebase:", dbError);
+                }
 
                 const aiMessage: IMessage = {
                     _id: Math.random().toString(),
