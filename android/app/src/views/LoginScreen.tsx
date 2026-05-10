@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, Button, StyleSheet, Alert, TextInput, TouchableOpacity } from "react-native";
 import auth from "@react-native-firebase/auth";
+import ReactNativeBiometrics from "react-native-biometrics";
 
 
 
@@ -10,7 +11,7 @@ export default function LoginScreen({ navigation }: any) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-
+    const [isAuthenticating, setIsAuthenticating] = useState(false);
 
 
     //function to handle login in an exisiting user
@@ -32,6 +33,34 @@ export default function LoginScreen({ navigation }: any) {
             Alert.alert('Sign up Error', error.message);
         }
     };
+
+    //handle biometric login
+    const handleBiometricLogin = async () => {
+        setIsAuthenticating(true);
+
+        try {
+            const rnBiometrics = new ReactNativeBiometrics();
+            const { available, biometryType } = await rnBiometrics.isSensorAvailable(); //check if phone support biometrics
+            if (available && biometryType === 'Biometrics') { //if available and biometric is type of Biometrics 
+                const { success } = await rnBiometrics.simplePrompt({
+                    promptMessage: 'Confirm identity to access DanaFlow',
+                    cancelButtonText: 'Cancel',  //text for the cancel button 
+                });
+                if (success) {
+                    navigation.replace('Wallet');
+                } else {
+                    Alert.alert('Authentication failed', 'Please try again')
+                }
+            } else {
+                Alert.alert('Not Supported', 'Biometrics are not set up on this device')
+            }
+        } catch (err) {
+            console.error(err);
+            Alert.alert('Error', "An error occured during authentication");
+        } finally {
+            setIsAuthenticating(false);
+        }
+    }
 
 
     return (
@@ -61,7 +90,14 @@ export default function LoginScreen({ navigation }: any) {
             <View style={styles.buttonContainer}>
                 <Button title="Create Account" onPress={handleSignUp} color="#28A745" />
             </View>
-
+            <View style={{}}>
+                <TouchableOpacity
+                    style={styles.biometricButton} onPress={handleBiometricLogin} disabled={isAuthenticating}>
+                    <Text style={styles.biometricButtonText}>
+                        {isAuthenticating ? 'Verifying...' : '🔐 Quick Login (Face/Touch ID)'}
+                    </Text>
+                </TouchableOpacity>
+            </View>
         </View>
     )
 
@@ -81,5 +117,16 @@ const styles = StyleSheet.create({
         top: 188, // Adjust to position over the password input
         zIndex: 10,
     },
+    biometricButton: {
+        backgroundColor: '#000',
+        paddingVertical: 15,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    biometricButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    }
 
 });
