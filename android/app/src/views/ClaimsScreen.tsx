@@ -3,63 +3,78 @@ import { View, Text, TextInput, Button, StyleSheet, Alert, Image, ActivityIndica
 import { launchCamera } from 'react-native-image-picker';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
-import { useNavigation } from "@react-navigation/native";
 
 export default function ClaimsScreen({ navigation }: any) {
 
     const [description, setDescription] = useState('');
     const [photoUri, setPhotoUri] = useState<string | null>(null);
+    // We can keep 'uploading' for UI logic if needed elsewhere, but we won't use it to block the user anymore.
     const [uploading, setUploading] = useState(false);
 
     const handleTakePhoto = async () => {
         const result = await launchCamera({ mediaType: 'photo', quality: 0.5 });
         if (result.assets && result.assets.length > 0) {
-            setPhotoUri(result.assets[0].uri || null) // set 
+            setPhotoUri(result.assets[0].uri || null);
         }
     }
 
     const uploadPhotoToStorage = async (uri: string) => {
-        const filename = `claims/${Date.now()}.jpg`; // Create a unique file name
+        const filename = `claims/${Date.now()}.jpg`;
         const reference = storage().ref(`${filename}`);
-        await reference.putFile(uri); //put file into storage //take uri from take photo (uri: string) 
-        return await reference.getDownloadURL(); // Get the Download URL (required for Gemini to see image
+        await reference.putFile(uri);
+        return await reference.getDownloadURL();
     }
 
-    const handleSubmitClaim = async () => {
+    // Notice we removed the 'async' keyword from the main function here
+    const handleSubmitClaim = () => {
         if (!photoUri || !description) {
-            Alert.alert('Error', 'Please prove both a description and a photo. thank you');
+            Alert.alert('Error', 'Please provide both a description and a photo. Thank you.');
             return;
         }
-        setUploading(true);
-        let cloudPhotoURL = '';
-        try {
-            cloudPhotoURL = await uploadPhotoToStorage(photoUri);
-        } catch (storageError) {
-            console.log("Storage upload failed(offline).", storageError);
-            cloudPhotoURL = 'offline_pending_upload'; //will be updated when connection reconnect
-        }
-        try { //when user offline, firestore will just save locally and push to the cloud autmoticlly later
-            await firestore().collection('claims').add({
-                description: description,
-                photoUrl: cloudPhotoURL,
-                status: 'pending', //pending, assigned, resolved 
-                createdAt: firestore.FieldValue.serverTimestamp(), //
-            });
-            Alert.alert('Claim Recorded!',
-                'If you are currently offline, your claim has been saved securely to your device and will sync automatically when you regain connection.'
-            );
-            navigation.goBack(); // Return to Wallet
-        } catch (error) {
-            console.error(error);
-            Alert.alert('Upload Failed', 'Something went wrong.');
-        } finally {
-            setUploading(false);
-        }
+
+        // 1. INSTANT UX RESPONSE (Optimistic UI)
+        // We do not make the user wait. Show the alert and navigate away immediately.
+        Alert.alert(
+            'Claim Saved',
+            'Your claim is securely saved. If you are offline, it will automatically sync in the background when your connection returns.'
+        );
+        navigation.goBack();
+
+        // 2. FIRE AND FORGET (Background Task)
+        // This function runs silently behind the scenes.
+        const processClaimInBackground = async () => {
+            let cloudPhotoURL = 'offline_pending_upload';
+
+            try {
+                const timeoutPromise = new Promise<string>((_, reject) =>
+                    setTimeout(() => reject(new Error('UPLOAD_TIMEOUT')), 5000)
+                );
+                cloudPhotoURL = await Promise.race([
+                    uploadPhotoToStorage(photoUri),
+                    timeoutPromise
+                ]);
+            } catch (storageError) {
+                console.log("Storage upload failed or timed out (offline). Proceeding with text data.");
+            }
+
+            try {
+                // Firebase will cache this locally if offline, and sync later.
+                await firestore().collection('claims').add({
+                    description: description,
+                    photoUrl: cloudPhotoURL,
+                    status: 'pending',
+                    createdAt: firestore.FieldValue.serverTimestamp(),
+                });
+            } catch (error) {
+                console.error("Background sync error: ", error);
+            }
+        };
+
+        // Trigger the background task without 'awaiting' it
+        processClaimInBackground();
     }
 
-
     return (
-
         <View style={styles.container}>
             <Text style={styles.header}>File a New Claim</Text>
             <TextInput
@@ -71,26 +86,22 @@ export default function ClaimsScreen({ navigation }: any) {
             />
 
             <View style={styles.buttonContainer}>
-                <Button title="Take photo" onPress={handleTakePhoto} color='FF3B30' />
+                <Button title="Take photo" onPress={handleTakePhoto} color='#FF3B30' />
             </View>
 
-            {/*show preview of photo if they take one */}
             {photoUri && <Image source={{ uri: photoUri }} style={styles.previewImage} />}
 
             <View style={{ marginTop: 40 }}>
-                <Button title="Talk to AI Advoc" color="#62C00EE" onPress={() => navigation.navigate('Chat')}></Button>
+                <Button title="Talk to AI Advocate" color="#6200EE" onPress={() => navigation.navigate('Chat')}></Button>
             </View>
+
             <View style={styles.submitContainer}>
-                {uploading ? (
-                    <ActivityIndicator size="large" color="#0000ff" />
-                ) : (
-                    <Button title="Submit Claim" onPress={handleSubmitClaim} color="#28A745" />
-                )}
+                {/* We removed the loading spinner entirely to give a fast, snappy experience */}
+                <Button title="Submit Claim" onPress={handleSubmitClaim} color="#28A745" />
             </View>
         </View>
     );
 }
-
 
 const styles = StyleSheet.create({
     container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5' },
