@@ -7,6 +7,11 @@ import WalletScreen from './android/app/src/views/WalletScreen';
 import ClaimsScreen from './android/app/src/views/ClaimsScreen';
 import LoginScreen from './android/app/src/views/LoginScreen';
 import ChatAdvocate from './android/app/src/views/ChatAdvocate';
+import firestore from '@react-native-firebase/firestore';
+
+firestore().settings({
+  persistence: true,
+});
 
 const Stack = createNativeStackNavigator();
 

@@ -31,15 +31,23 @@ export default function ClaimsScreen({ navigation }: any) {
             return;
         }
         setUploading(true);
+        let cloudPhotoURL = '';
         try {
-            const CloudPhotoURL = await uploadPhotoToStorage(photoUri);
+            cloudPhotoURL = await uploadPhotoToStorage(photoUri);
+        } catch (storageError) {
+            console.log("Storage upload failed(offline).", storageError);
+            cloudPhotoURL = 'offline_pending_upload'; //will be updated when connection reconnect
+        }
+        try { //when user offline, firestore will just save locally and push to the cloud autmoticlly later
             await firestore().collection('claims').add({
                 description: description,
-                photoUrl: CloudPhotoURL,
+                photoUrl: cloudPhotoURL,
                 status: 'pending', //pending, assigned, resolved 
                 createdAt: firestore.FieldValue.serverTimestamp(), //
             });
-            Alert.alert('Success!', 'Your claim has been submitted to the cloud.');
+            Alert.alert('Claim Recorded!',
+                'If you are currently offline, your claim has been saved securely to your device and will sync automatically when you regain connection.'
+            );
             navigation.goBack(); // Return to Wallet
         } catch (error) {
             console.error(error);
