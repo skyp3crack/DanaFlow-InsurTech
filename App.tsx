@@ -1,13 +1,17 @@
 
 import 'react-native-gesture-handler';
-import React from 'react';
+import { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import firestore from '@react-native-firebase/firestore';
+import NetInfo from '@react-native-community/netinfo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import storage from '@react-native-firebase/storage';
 import WalletScreen from './android/app/src/views/WalletScreen';
 import ClaimsScreen from './android/app/src/views/ClaimsScreen';
 import LoginScreen from './android/app/src/views/LoginScreen';
 import ChatAdvocate from './android/app/src/views/ChatAdvocate';
-import firestore from '@react-native-firebase/firestore';
+
 
 firestore().settings({
   persistence: true,
@@ -16,6 +20,55 @@ firestore().settings({
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      if (state.isConnected) {
+        processOfflineQueue();
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const processOfflineQueue = async () => {
+    try {
+      const queueStr = await AsyncStorage.getItem('OFFLINE_IMAGE_QUEUE');
+      if (!queueStr) return;
+
+      const queue = JSON.parse(queueStr);
+      if (queue.length === 0) return;
+
+      console.log(`Internet restored! Processing ${queue.length} queued images...`);
+      const remainingQueue = [];
+
+      for (const item of queue) {
+        try {
+          // 1. Upload the queued image to Firebase Storage
+          const filename = `claims/${Date.now()}_sync.jpg`;
+          const reference = storage().ref(filename);
+          await reference.putFile(item.uri);
+          const downloadURL = await reference.getDownloadURL();
+
+          // 2. Update the existing Firestore document with the real URL!
+          await firestore().collection('claims').doc(item.claimId).update({
+            photoUrl: downloadURL
+          });
+
+          console.log(`Successfully synced image for claim: ${item.claimId}`);
+        } catch (uploadErr) {
+          console.error("Sync failed for item, keeping in queue.", uploadErr);
+          remainingQueue.push(item); // Keep it in the queue if it fails again
+        }
+      }
+
+      // 3. Save the remaining (failed) items back to the queue, or empty it if all succeeded
+      await AsyncStorage.setItem('OFFLINE_IMAGE_QUEUE', JSON.stringify(remainingQueue));
+
+    } catch (e) {
+      console.error("Queue processing error", e);
+    }
+  }
+
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">

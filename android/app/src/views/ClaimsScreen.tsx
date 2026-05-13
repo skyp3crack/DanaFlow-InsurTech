@@ -5,6 +5,7 @@ import { launchCamera } from 'react-native-image-picker';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 import NetInfo from '@react-native-community/netinfo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // ─── Design Tokens ────────────────────────────────────────────────────────────
 const COLORS = {
@@ -42,13 +43,26 @@ export default function ClaimsScreen({ navigation }: any) {
     return await reference.getDownloadURL();
   }
 
-  // Notice we removed the 'async' keyword from the main function here
+  const saveToOfflineQueue = async (claimId: string, uri: string) => {
+    try {
+      const existingQueueStr = await AsyncStorage.getItem('OFFLINE_IMAGE_QUEUE');
+      const queue = existingQueueStr ? JSON.parse(existingQueueStr) : [];
+      queue.push({ claimId, uri });
+      await AsyncStorage.setItem('OFFLINE_IMAGE_QUEUE', JSON.stringify(queue));
+      console.log("Image added to offline queue!");
+    } catch (e) {
+      console.error("Failed to queue image", e);
+    }
+  }
+
   const handleSubmitClaim = async () => {
     if (!photoUri || !description) {
       Alert.alert('Error', 'Please provide both a description and a photo. Thank you.');
       return;
     }
     const networkState = await NetInfo.fetch();
+    const newClaimRef = firestore().collection('claims').doc();
+    const claimId = newClaimRef.id;
     if (networkState.isConnected) {
       Alert.alert(
         'Claim submitted', 'Your claim has been successfully uploaded.'
@@ -69,15 +83,15 @@ export default function ClaimsScreen({ navigation }: any) {
           // Wait patiently for the emulator to finish the upload
           cloudPhotoURL = await uploadPhotoToStorage(photoUri);
         } catch (storageError) {
-          console.log("Storage upload failed: ", storageError);
+          await saveToOfflineQueue(claimId, photoUri);
         }
       } else {
-        console.log("Offline mode: Skipping photo upload. Text will sync automatically.");
+        await saveToOfflineQueue(claimId, photoUri);
       }
 
       try {
         // Firebase will cache this locally if offline, and sync later.
-        await firestore().collection('claims').add({
+        await newClaimRef.set({
           description: description,
           photoUrl: cloudPhotoURL,
           status: 'pending',
