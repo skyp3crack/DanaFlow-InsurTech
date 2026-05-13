@@ -1,14 +1,6 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
-  Platform,
-} from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, StatusBar, Platform, } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MOCK_POLICIES } from '../mock/policies';
 
 const COLORS = {
@@ -21,9 +13,9 @@ const COLORS = {
 };
 
 const POLICY_META: Record<string, { icon: string; accent: string }> = {
-  'Auto Insurance':   { icon: '🚗', accent: '#00B4B6' },
+  'Auto Insurance': { icon: '🚗', accent: '#00B4B6' },
   'Health Insurance': { icon: '🏥', accent: '#7EDDD4' },
-  'Home Insurance':   { icon: '🏠', accent: '#F4A261' },
+  'Home Insurance': { icon: '🏠', accent: '#F4A261' },
 };
 
 function getPolicyMeta(type: string) {

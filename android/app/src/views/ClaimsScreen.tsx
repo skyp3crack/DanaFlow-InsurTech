@@ -1,22 +1,10 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  Alert,
-  Image,
-  ActivityIndicator,
-  TouchableOpacity,
-  SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StatusBar,
-} from "react-native";
+import { View, Text, TextInput, StyleSheet, Alert, Image, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, StatusBar } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { launchCamera } from 'react-native-image-picker';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
+import NetInfo from '@react-native-community/netinfo';
 
 // ─── Design Tokens ────────────────────────────────────────────────────────────
 const COLORS = {
@@ -55,22 +43,24 @@ export default function ClaimsScreen({ navigation }: any) {
   }
 
   // Notice we removed the 'async' keyword from the main function here
-  const handleSubmitClaim = () => {
+  const handleSubmitClaim = async () => {
     if (!photoUri || !description) {
       Alert.alert('Error', 'Please provide both a description and a photo. Thank you.');
       return;
     }
+    const networkState = await NetInfo.fetch();
+    if (networkState.isConnected) {
+      Alert.alert(
+        'Claim submitted', 'Your claim has been successfully uploaded.'
+      )
+    } else {
+      Alert.alert(
+        "Offline mode",
+        "No Internet connection. Your claim is securely saved to your device and will sync automatically when you regain connection"
+      );
+    }
 
-    // 1. INSTANT UX RESPONSE (Optimistic UI)
-    // We do not make the user wait. Show the alert and navigate away immediately.
-    Alert.alert(
-      'Claim Saved',
-      'Your claim is securely saved. If you are offline, it will automatically sync in the background when your connection returns.'
-    );
     navigation.goBack();
-
-    // 2. FIRE AND FORGET (Background Task)
-    // This function runs silently behind the scenes.
     const processClaimInBackground = async () => {
       let cloudPhotoURL = 'offline_pending_upload';
 

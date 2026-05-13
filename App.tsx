@@ -20,9 +20,9 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Wallet" component={WalletScreen} options={{ title: 'Digital Wallet' }} />
-        <Stack.Screen name="Chat" component={ChatAdvocate} options={{ title: 'Ask AI Advocate' }} />
-        <Stack.Screen name="Claims" component={ClaimsScreen} options={{ title: 'Agentic Claims Advocate' }} />
+        <Stack.Screen name="Wallet" component={WalletScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Chat" component={ChatAdvocate} options={{ headerShown: false }} />
+        <Stack.Screen name="Claims" component={ClaimsScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

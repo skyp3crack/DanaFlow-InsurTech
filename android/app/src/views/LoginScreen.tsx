@@ -1,17 +1,6 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Alert,
-  TextInput,
-  TouchableOpacity,
-  SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
-  StatusBar,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, StyleSheet, Alert, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, StatusBar, ActivityIndicator, } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context"
 import auth from "@react-native-firebase/auth";
 import ReactNativeBiometrics from "react-native-biometrics";
 
