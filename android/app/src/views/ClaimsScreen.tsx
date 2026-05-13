@@ -64,16 +64,15 @@ export default function ClaimsScreen({ navigation }: any) {
     const processClaimInBackground = async () => {
       let cloudPhotoURL = 'offline_pending_upload';
 
-      try {
-        const timeoutPromise = new Promise<string>((_, reject) =>
-          setTimeout(() => reject(new Error('UPLOAD_TIMEOUT')), 5000)
-        );
-        cloudPhotoURL = await Promise.race([
-          uploadPhotoToStorage(photoUri),
-          timeoutPromise
-        ]);
-      } catch (storageError) {
-        console.log("Storage upload failed or timed out (offline). Proceeding with text data.");
+      if (networkState.isConnected) {
+        try {
+          // Wait patiently for the emulator to finish the upload
+          cloudPhotoURL = await uploadPhotoToStorage(photoUri);
+        } catch (storageError) {
+          console.log("Storage upload failed: ", storageError);
+        }
+      } else {
+        console.log("Offline mode: Skipping photo upload. Text will sync automatically.");
       }
 
       try {
