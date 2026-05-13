@@ -198,7 +198,7 @@ export default function ClaimsScreen({ navigation }: any) {
           {/* ── AI Advocate CTA ── */}
           <TouchableOpacity
             style={styles.advocateButton}
-            onPress={() => navigation.navigate('Chat')}
+            onPress={() => navigation.navigate('Advocate')}
             activeOpacity={0.85}
           >
             <View style={styles.advocateLeft}>

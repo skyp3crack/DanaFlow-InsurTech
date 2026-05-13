@@ -27,7 +27,7 @@ export default function LoginScreen({ navigation }: any) {
   const handleLogin = async () => {
     try {
       await auth().signInWithEmailAndPassword(email, password);
-      navigation.replace("Wallet"); //replace means we go to the Wallet, but the user can't swipe back to the Login screen
+      navigation.replace("Main");
     } catch (error: any) {
       Alert.alert("Login Error", error.message);
     }
@@ -37,7 +37,7 @@ export default function LoginScreen({ navigation }: any) {
   const handleSignUp = async () => {
     try {
       await auth().createUserWithEmailAndPassword(email, password);
-      navigation.replace("Wallet");
+      navigation.replace("Main");
     } catch (error: any) {
       Alert.alert("Sign up Error", error.message);
     }
@@ -58,7 +58,7 @@ export default function LoginScreen({ navigation }: any) {
           cancelButtonText: "Cancel", //text for the cancel button
         });
         if (success) {
-          navigation.replace("Wallet");
+          navigation.replace("Main");
         } else {
           Alert.alert("Authentication failed", "Please try again");
         }
