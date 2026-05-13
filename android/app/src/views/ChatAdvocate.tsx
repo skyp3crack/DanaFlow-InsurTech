@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, StyleSheet, Alert, StatusBar, TouchableOpacity, Platform, } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GiftedChat, IMessage, Bubble, InputToolbar, Send, Avatar } from 'react-native-gifted-chat';
 import firestore from '@react-native-firebase/firestore';
@@ -218,20 +219,17 @@ export default function ChatAdvocate({ navigation }: any) {
                         </View>
                     </Send>
                 )}
-                renderAvatar={props => (
-                    <Avatar
-                        {...props}
-                        imageStyle={{
-                            left: {
-                                width: 34,
-                                height: 34,
-                                borderRadius: 17,
-                                borderWidth: 2,
-                                borderColor: COLORS.softCyan,
-                            },
-                        }}
-                    />
-                )}
+                renderAvatar={props => {
+                    const { currentMessage } = props;
+                    if (currentMessage?.user?._id === 2) { // AI user
+                        return (
+                            <View style={styles.aiMessageAvatar}>
+                                <MaterialIcon name="robot-happy-outline" size={20} color={COLORS.white} />
+                            </View>
+                        );
+                    }
+                    return null;
+                }}
                 messagesContainerStyle={styles.messagesContainer}
                 timeTextStyle={{
                     right: { color: 'rgba(255,255,255,0.7)', fontSize: 11 },
@@ -333,5 +331,16 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 6,
     },
-    sendIcon: { color: COLORS.white, fontSize: 18, fontWeight: '700' },
+    sendIcon: { color: COLORS.white, fontSize: 18, fontWeight: '700' }, // This style is not directly used by the Icon component
+
+    // AI Message Avatar
+    aiMessageAvatar: {
+        width: 34,
+        height: 34,
+        borderRadius: 17, // Half of width/height for a perfect circle
+        borderWidth: 2,
+        borderColor: COLORS.softCyan,
+        backgroundColor: COLORS.primary,
+        alignItems: 'center', justifyContent: 'center',
+    },
 });
