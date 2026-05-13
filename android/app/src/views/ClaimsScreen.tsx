@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, StyleSheet, Alert, Image, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, StatusBar } from "react-native";
+import Icon from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { launchCamera } from 'react-native-image-picker';
 import storage from '@react-native-firebase/storage';
@@ -150,7 +151,7 @@ export default function ClaimsScreen({ navigation }: any) {
           {/* ── Description card ── */}
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Text style={styles.cardIcon}>📝</Text>
+              <Icon name="document-text-outline" size={20} color={COLORS.primary} />
               <Text style={styles.cardTitle}>Describe the Incident</Text>
             </View>
             <TextInput
@@ -167,7 +168,7 @@ export default function ClaimsScreen({ navigation }: any) {
           {/* ── Photo card ── */}
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Text style={styles.cardIcon}>📷</Text>
+              <Icon name="camera-outline" size={20} color={COLORS.primary} />
               <Text style={styles.cardTitle}>Attach Evidence Photo</Text>
             </View>
 
@@ -179,7 +180,10 @@ export default function ClaimsScreen({ navigation }: any) {
                   onPress={handleTakePhoto}
                   activeOpacity={0.85}
                 >
-                  <Text style={styles.retakeText}>🔄 Retake</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                    <Icon name="refresh-outline" size={14} color={COLORS.white} />
+                    <Text style={styles.retakeText}>Retake</Text>
+                  </View>
                 </TouchableOpacity>
               </View>
             ) : (
@@ -188,7 +192,7 @@ export default function ClaimsScreen({ navigation }: any) {
                 onPress={handleTakePhoto}
                 activeOpacity={0.75}
               >
-                <Text style={styles.photoPlaceholderIcon}>📸</Text>
+                <Icon name="camera-outline" size={36} color={COLORS.primary} />
                 <Text style={styles.photoPlaceholderText}>Tap to take a photo</Text>
                 <Text style={styles.photoPlaceholderSub}>Clear photos speed up claim processing</Text>
               </TouchableOpacity>
@@ -203,7 +207,7 @@ export default function ClaimsScreen({ navigation }: any) {
           >
             <View style={styles.advocateLeft}>
               <View style={styles.advocateBadge}>
-                <Text style={styles.advocateBadgeIcon}>🤖</Text>
+                <Icon name="sparkles-outline" size={24} color={COLORS.primary} />
               </View>
               <View>
                 <Text style={styles.advocateTitle}>Talk to AI Advocate</Text>
@@ -227,9 +231,12 @@ export default function ClaimsScreen({ navigation }: any) {
             <Text style={styles.submitArrow}>→</Text>
           </TouchableOpacity>
 
-          <Text style={styles.disclaimer}>
-            🔒 Your data is end-to-end encrypted and will sync automatically when online.
-          </Text>
+          <View style={styles.disclaimerRow}>
+            <Icon name="lock-closed-outline" size={13} color={COLORS.warmGray} />
+            <Text style={styles.disclaimer}>
+              Your data is end-to-end encrypted and will sync automatically when online.
+            </Text>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -380,10 +387,16 @@ const styles = StyleSheet.create({
   submitArrow: { color: COLORS.white, fontSize: 18 },
 
   // Disclaimer
+  disclaimerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+  },
   disclaimer: {
-    textAlign: 'center',
     fontSize: 12,
     color: COLORS.warmGray,
     lineHeight: 18,
+    flexShrink: 1,
   },
 });

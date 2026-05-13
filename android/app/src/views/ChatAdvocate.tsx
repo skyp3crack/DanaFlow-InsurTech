@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, StyleSheet, Alert, StatusBar, TouchableOpacity, Platform, } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GiftedChat, IMessage, Bubble, InputToolbar, Send, Avatar } from 'react-native-gifted-chat';
 import firestore from '@react-native-firebase/firestore';
@@ -96,7 +97,7 @@ export default function ChatAdvocate({ navigation }: any) {
                         });
                     }
                     Alert.alert(
-                        "⚡ Database Updated By AI",
+                        "Database Updated By AI",
                         `AI Summary: ${reason}\n\nFirestore status successfully changed to 'AI Reviewing'.`
                     );
                 } catch (dbError) {
@@ -213,7 +214,7 @@ export default function ChatAdvocate({ navigation }: any) {
                 renderSend={props => (
                     <Send {...props} containerStyle={styles.sendContainer}>
                         <View style={styles.sendButton}>
-                            <Text style={styles.sendIcon}>↑</Text>
+                            <Icon name="arrow-up" size={20} color={COLORS.white} />
                         </View>
                     </Send>
                 )}

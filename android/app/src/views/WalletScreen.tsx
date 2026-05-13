@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, StatusBar, Platform, } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { MOCK_POLICIES } from '../mock/policies';
 
 const COLORS = {
@@ -13,13 +14,13 @@ const COLORS = {
 };
 
 const POLICY_META: Record<string, { icon: string; accent: string }> = {
-  'Auto Insurance': { icon: '🚗', accent: '#00B4B6' },
-  'Health Insurance': { icon: '🏥', accent: '#7EDDD4' },
-  'Home Insurance': { icon: '🏠', accent: '#F4A261' },
+  'Auto Insurance': { icon: 'car-outline', accent: '#00B4B6' },
+  'Health Insurance': { icon: 'medkit-outline', accent: '#7EDDD4' },
+  'Home Insurance': { icon: 'home-outline', accent: '#F4A261' },
 };
 
 function getPolicyMeta(type: string) {
-  return POLICY_META[type] ?? { icon: '📋', accent: COLORS.warmGray };
+  return POLICY_META[type] ?? { icon: 'document-text-outline', accent: COLORS.warmGray };
 }
 
 export default function WalletScreen({ navigation }: any) {
@@ -39,7 +40,10 @@ export default function WalletScreen({ navigation }: any) {
           <View>
             <View style={styles.topBar}>
               <View>
-                <Text style={styles.greeting}>Good day 👋</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={styles.greeting}>Good day</Text>
+                  <Icon name="hand-left-outline" size={14} color={COLORS.warmGray} />
+                </View>
                 <Text style={styles.header}>My Wallet</Text>
               </View>
               <View style={styles.avatarCircle}>
@@ -59,7 +63,7 @@ export default function WalletScreen({ navigation }: any) {
               </View>
               <View style={styles.summaryDivider} />
               <View style={styles.summaryItem}>
-                <Text style={[styles.summaryValue, { color: '#4CAF50' }]}>✓</Text>
+                <Icon name="checkmark-circle" size={26} color="#4CAF50" />
                 <Text style={styles.summaryLabel}>All Synced</Text>
               </View>
             </View>
@@ -75,7 +79,7 @@ export default function WalletScreen({ navigation }: any) {
               <View style={[styles.cardAccent, { backgroundColor: meta.accent }]} />
               <View style={styles.cardContent}>
                 <View style={[styles.iconBadge, { backgroundColor: meta.accent + '22' }]}>
-                  <Text style={styles.iconBadgeText}>{meta.icon}</Text>
+                  <Icon name={meta.icon} size={22} color={meta.accent} />
                 </View>
                 <View style={styles.cardInfo}>
                   <Text style={styles.cardName}>{item.name}</Text>
@@ -101,7 +105,7 @@ export default function WalletScreen({ navigation }: any) {
             onPress={() => navigation.navigate('Claims')}
             activeOpacity={0.85}
           >
-            <Text style={styles.ctaIcon}>⚡</Text>
+            <Icon name="flash" size={20} color={COLORS.white} />
             <Text style={styles.ctaText}>File a New Claim</Text>
           </TouchableOpacity>
         }

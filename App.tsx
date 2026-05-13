@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 import firestore from '@react-native-firebase/firestore';
 import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -47,11 +48,11 @@ function SettingsScreen() {
 
 // ─── Tab bar icon map ─────────────────────────────────────────────────────────
 const TAB_ICONS: Record<string, { icon: string; label: string }> = {
-  Wallet: { icon: '⊞', label: 'Home' },
-  Claims: { icon: '📋', label: 'Claims' },
+  Wallet: { icon: 'wallet-outline', label: 'Home' },
+  Claims: { icon: 'document-text-outline', label: 'Claims' },
   Advocate: { icon: 'AI', label: '' }, // center — no label
-  History: { icon: '⏱', label: 'History' },
-  Settings: { icon: '⚙', label: 'Settings' },
+  History: { icon: 'time-outline', label: 'History' },
+  Settings: { icon: 'settings-outline', label: 'Settings' },
 };
 
 // ─── Custom Bottom Tab Bar ────────────────────────────────────────────────────
@@ -104,9 +105,12 @@ function DanaFlowTabBar({ state, descriptors, navigation }: any) {
               activeOpacity={0.7}
               accessibilityLabel={meta.label}
             >
-              <Text style={[tabStyles.tabIcon, isFocused && tabStyles.tabIconFocused]}>
-                {meta.icon}
-              </Text>
+              <Icon
+                name={meta.icon}
+                size={22}
+                color={isFocused ? COLORS.primary : COLORS.warmGray}
+                style={{ marginBottom: 2 }}
+              />
               <Text style={[tabStyles.tabLabel, isFocused && tabStyles.tabLabelFocused]}>
                 {meta.label}
               </Text>

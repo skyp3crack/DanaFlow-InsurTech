@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, Alert, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, StatusBar, ActivityIndicator, } from "react-native";
+import Icon from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from "react-native-safe-area-context"
 import auth from "@react-native-firebase/auth";
 import ReactNativeBiometrics from "react-native-biometrics";
@@ -129,7 +130,11 @@ export default function LoginScreen({ navigation }: any) {
                 style={styles.eyeToggle}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
-                <Text style={styles.eyeIcon}>{showPassword ? "🙈" : "👁️"}</Text>
+                <Icon
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  size={20}
+                  color={COLORS.warmGray}
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -163,7 +168,7 @@ export default function LoginScreen({ navigation }: any) {
             {isAuthenticating ? (
               <ActivityIndicator color={COLORS.primary} size="small" />
             ) : (
-              <Text style={styles.biometricIcon}>🔐</Text>
+              <Icon name="finger-print" size={22} color={COLORS.primary} />
             )}
             <Text style={styles.biometricButtonText}>
               {isAuthenticating ? "Verifying…" : "Quick Login (Face / Touch ID)"}
