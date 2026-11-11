@@ -20,6 +20,9 @@ DanaFlow is a next-generation, AI-driven mobile insurance platform built for the
 ## 💡 The Problem It Solves
 Traditional First Notice of Loss (FNOL) processes are manual and frustrating. DanaFlow allows users to upload damage evidence and simply chat with an AI. The AI handles the data collection and autonomously updates the claim status to "AI Reviewing" for human adjusters, dramatically reducing operational bottlenecks.
 
+## 🌐 Try It in the Browser
+A static web version of the app lives in [`web-demo/`](web-demo). It reproduces the login (including biometric quick login), the wallet, claim filing with the offline queue, and the AI advocate's database update, with Firebase and Gemini simulated locally. See [`web-demo/README.md`](web-demo/README.md).
+
 ## 📱 Running Locally
 \`\`\`bash
 # Install dependencies
